@@ -8,12 +8,9 @@ text = 'oneight'
 matches = re.findall(r'(?=(one|eight))', text)  # (?=...) is a lookahead assertion, means it will pick up overlapping matches
 print('test matches',text, matches) """
 
-
 def extract_numbers(lines):
-    
 
     combined_numbers = []
-
     for line in lines:
         digits = re.findall(r'\d', line)
         combined_number = int(digits[0] + digits[-1])
@@ -59,7 +56,7 @@ def extract_numbers_with_spellings(lines):
     combined_numbers = []
 
     for line in lines:
-        digits = re.findall(r'(?=(\d|one|two|three|four|five|six|seven|eight|nine))', line)
+        digits = re.findall(r'(?=(\d|one|two|three|four|five|six|seven|eight|nine))', line) # (?=...) means it will pick up overlapping matching words
         digits = [convert_spellings_to_digits(digit) for digit in digits]
         combined_number = int(digits[0] + digits[-1])
         combined_numbers.append(combined_number)
