@@ -1,27 +1,26 @@
+"""A game based on poker hands with a list of hands of cards each with a bid.
+Hands are valued in order of poker hands highest to lowest: 
+five of a kind, four of a kind, full house, three of a kind, two pair, one pair, high card.
+Within each category, hands are valued by the value of first card value, then the second, etc.
+Hands are ranked weakest to strongest 1 to n where n is the number of hands. 
+Part 1 calculates the sum of the hand rank times the bid for each hand.
+Part 2 treats Jacks as wild cards which can be used to promote a hand to a higher ranking category,
+but values the jack lower than all other cards in the hand."""
+
 
 testData = [
 '32T3K 765',
 'T55J5 684',
 'KK677 28',
 'KTJJT 220',
-'QQQJA 483',
-'99999 1',
-'QQQQQ 1',
-'12222 1',
-'666KQ 1',
-'77333 1',
-'4563K 1',
-'55388 1',
-'KKKKK 1',
-'AA752 1',
-'2AAJA 1'
+'QQQJA 483'
 ]
 
 import re
 
 readFile = lambda filename : [line.rstrip('\n') for line in open(filename, 'r')]
 
-def get_suits(cards) :
+def get_ranks(cards) :
     aces = re.findall('A', cards)
     kings = re.findall('K', cards)
     queens = re.findall('Q', cards)
@@ -41,17 +40,11 @@ def get_suits(cards) :
             'nines' : len(nines), 'eights' : len(eghts), 'sevens' : len(sevens), 'sixes' : len(sixes), \
                 'fives' : len(fives), 'fours' : len(fours), 'threes' : len(threes), 'twos' : len(twos), 'ones' : len(ones)}
              
-
-# listByCount = [len(kings), len(queens), len(jacks), len(tens), len(nines), len(eghts), len(sevens), len(sixes), len(fives), len(fours), len(threes), len(twos), len(ones)]
-
 def getHand(cards) :
-    suits = get_suits(cards)
-    suitsByCount = [suits[v] for v in suits]
-    listByCount = sorted(suitsByCount, reverse=True)
+    ranks = get_ranks(cards)
+    ranksByCount = [ranks[v] for v in ranks]
+    listByCount = sorted(ranksByCount, reverse=True)
     return 'fiveOfAKind' if listByCount[0] == 5 else 'fourOfAKind' if listByCount[0] == 4 else 'fullHouse' if listByCount[0] == 3 and listByCount[1] == 2 else 'threeOfAKind' if listByCount[0] == 3 else 'twoPair' if listByCount[0] == 2 and listByCount[1] == 2 else 'onePair' if listByCount[0] == 2 else 'highCard'
-
-# print('fiveOfAKinds', fiveOfAKinds, 'fourOfAKinds', fourOfAKinds, 'fullHouses', fullHouses, 'threeOfAKinds', threeOfAKinds, 'twoPairs', twoPairs, 'onePairs', onePairs, 'highCards', highCards)
-
 
 # produce a ket for the sort order of hans of cards
 def sortKey(cards) :
@@ -65,7 +58,6 @@ def sortKey(cards) :
         keyChar = sortDict.get(chr)
         key += keyChar
     return key
-
 
 def solvitPart1(input=testData) :
     data = [(cards, bid, getHand(cards)) for cards, bid in [line.split() for line in input]]
@@ -88,19 +80,19 @@ def solvitPart1(input=testData) :
     inOrder.extend(sorted(highCards, key=lambda x: sortKey(x[0])))
     
     # Create a list of numbers from the length of inOrder to 1
-    rank = list(range(len(inOrder), 0, -1))
-    score = [rank[i] * int(inOrder[i][1]) for i in range(len(inOrder))]
+    strength = list(range(len(inOrder), 0, -1))
+    score = [strength[i] * int(inOrder[i][1]) for i in range(len(inOrder))]
     return(sum(score)) 
 
-# print(solvitPart1()) 
+#print('Part 1 test ', solvitPart1()) 
 print('Part 1: ',solvitPart1(readFile('day7_input.txt'))) # 255048101
 
 def getHandPart2(cards) :
-    """Jacks are now wild cards to promote the hand to a higher ranking type"""
-    suits = get_suits(cards)
-    JCount = suits['jacks']
-    suitsByCount = [suits[v] for v in suits if v != 'jacks']
-    listByCount = sorted(suitsByCount, reverse=True)
+    """Jacks are now wild cards to promote the hand to a higher valued category"""
+    ranks = get_ranks(cards)
+    JCount = ranks['jacks']
+    ranksByCount = [ranks[v] for v in ranks if v != 'jacks']
+    listByCount = sorted(ranksByCount, reverse=True)
     # add the number of 'J' cards to the highest count
     listByCount[0] += JCount
     return 'fiveOfAKind' if listByCount[0] == 5 else 'fourOfAKind' if listByCount[0] == 4 else 'fullHouse' if listByCount[0] == 3 and listByCount[1] == 2 else 'threeOfAKind' if listByCount[0] == 3 else 'twoPair' if listByCount[0] == 2 and listByCount[1] == 2 else 'onePair' if listByCount[0] == 2 else 'highCard'
@@ -119,7 +111,6 @@ def sortKeyPart2(cards) :
     return key
 
 def solvitPart2(input=testData) :
-
     data = [(cards, bid, getHandPart2(cards)) for cards, bid in [line.split() for line in input]]
 
     fiveOfAKinds = [(cards, bid, hand) for cards, bid, hand in data if hand == 'fiveOfAKind']
@@ -140,12 +131,12 @@ def solvitPart2(input=testData) :
     inOrder.extend(sorted(highCards, key=lambda x: sortKeyPart2(x[0])))
     
     # Create a list of numbers from the length of inOrder down to 1
-    rank = list(range(len(inOrder), 0, -1))
-    score = [rank[i] * int(inOrder[i][1]) for i in range(len(inOrder))]
+    strength = list(range(len(inOrder), 0, -1))
+    score = [strength[i] * int(inOrder[i][1]) for i in range(len(inOrder))]
     return(sum(score)) 
 
 #print('Part 2 test : ', solvitPart2()) 
-print('Part 2 : ',solvitPart2(readFile('day7_input.txt'))) 
+print('Part 2 : ', solvitPart2(readFile('day7_input.txt'))) 
 
 
 
